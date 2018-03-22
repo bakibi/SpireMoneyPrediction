@@ -167,7 +167,7 @@ public class StockDataSetIterator implements DataSetIterator {
      * @param stockDataList
      * @return
      */
-    private List<Pair<INDArray, INDArray>> generateTestDataSet (List<Point> stockDataList) {
+    public List<Pair<INDArray, INDArray>> generateTestDataSet (List<Point> stockDataList) {
     	int window = exampleLength + predictLength;
     	List<Pair<INDArray, INDArray>> test = new ArrayList<Pair<INDArray, INDArray>>();
     	for (int i = 0; i < stockDataList.size() - window; i++) {
@@ -204,8 +204,45 @@ public class StockDataSetIterator implements DataSetIterator {
     	}
     	return test;
     }
+    
+    public Pair<INDArray, INDArray> generateTestDataSetOne (List<Point> stockDataList,int exampleLength,int predictLength) {
+    	Pair<INDArray, INDArray> ans ;
+    	
+    		INDArray input = Nd4j.create(new int[] {exampleLength, VECTOR_SIZE}, 'f'); // f pour la construction rapide (fast)
+    		for (int j = 0; j < exampleLength-1; j++) {
+    			Point stock = stockDataList.get(j);
+    			input.putScalar(new int[] {j , 0}, (stock.getOpen() - minArray[0]) / (maxArray[0] - minArray[0]));
+    			input.putScalar(new int[] {j , 1}, (stock.getClose() - minArray[1]) / (maxArray[1] - minArray[1]));
+    			input.putScalar(new int[] {j , 2}, (stock.getLow() - minArray[2]) / (maxArray[2] - minArray[2]));
+    			input.putScalar(new int[] {j , 3}, (stock.getHigh() - minArray[3]) / (maxArray[3] - minArray[3]));
+    			input.putScalar(new int[] {j , 4}, (stock.getVolume() - minArray[4]) / (maxArray[4] - minArray[4]));
+    		}
+            Point stock = stockDataList.get(exampleLength-1);
+            INDArray label;
+            if (category.equals(PriceCategory.ALL)) {
+                label = Nd4j.create(new int[]{VECTOR_SIZE}, 'f');  // f pour la construction rapide (fast)
+                label.putScalar(new int[] {0}, stock.getOpen());
+                label.putScalar(new int[] {1}, stock.getClose());
+                label.putScalar(new int[] {2}, stock.getLow());
+                label.putScalar(new int[] {3}, stock.getHigh());
+                label.putScalar(new int[] {4}, stock.getVolume());
+            } else {
+                label = Nd4j.create(new int[] {1}, 'f');
+                switch (category) {
+                    case OPEN: label.putScalar(new int[] {0}, stock.getOpen()); break;
+                    case CLOSE: label.putScalar(new int[] {0}, stock.getClose()); break;
+                    case LOW: label.putScalar(new int[] {0}, stock.getLow()); break;
+                    case HIGH: label.putScalar(new int[] {0}, stock.getHigh()); break;
+                    case VOLUME: label.putScalar(new int[] {0}, stock.getVolume()); break;
+                    default: throw new NoSuchElementException();
+                }
+            }
+    		ans = new Pair<INDArray, INDArray>(input, label);
+    	
+    	return ans;
+    }
 
-	private List<Point> readStockDataFromFile (String filename, String symbol) {
+	public List<Point> readStockDataFromFile (String filename, String symbol) {
         List<Point> stockDataList = new ArrayList<Point>();
         
         try {
@@ -231,4 +268,76 @@ public class StockDataSetIterator implements DataSetIterator {
         }
         return stockDataList;
     }
+
+	public int getMiniBatchSize() {
+		return miniBatchSize;
+	}
+
+	public void setMiniBatchSize(int miniBatchSize) {
+		this.miniBatchSize = miniBatchSize;
+	}
+
+	public int getExampleLength() {
+		return exampleLength;
+	}
+
+	public void setExampleLength(int exampleLength) {
+		this.exampleLength = exampleLength;
+	}
+
+	public int getPredictLength() {
+		return predictLength;
+	}
+
+	public void setPredictLength(int predictLength) {
+		this.predictLength = predictLength;
+	}
+
+	public PriceCategory getCategory() {
+		return category;
+	}
+
+	public void setCategory(PriceCategory category) {
+		this.category = category;
+	}
+
+	public LinkedList<Integer> getExampleStartOffsets() {
+		return exampleStartOffsets;
+	}
+
+	public void setExampleStartOffsets(LinkedList<Integer> exampleStartOffsets) {
+		this.exampleStartOffsets = exampleStartOffsets;
+	}
+
+	public List<Point> getTrain() {
+		return train;
+	}
+
+	public void setTrain(List<Point> train) {
+		this.train = train;
+	}
+
+	public List<Pair<INDArray, INDArray>> getTest() {
+		return test;
+	}
+
+	public void setTest(List<Pair<INDArray, INDArray>> test) {
+		this.test = test;
+	}
+
+	public Map<PriceCategory, Integer> getFeatureMapIndex() {
+		return featureMapIndex;
+	}
+
+	public int getVECTOR_SIZE() {
+		return VECTOR_SIZE;
+	}
+
+	public void setMinArray(double[] minArray) {
+		this.minArray = minArray;
+	}
+
+	public void setMaxArray(double[] maxArray) {
+		this.maxArray = maxArray;
+	}
 }

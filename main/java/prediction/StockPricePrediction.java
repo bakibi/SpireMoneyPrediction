@@ -22,11 +22,11 @@ public class StockPricePrediction {
     private static int exampleLength = 22; //  le nombre de jours de la semaine
 
     public static void main (String[] args) throws IOException {
-        String file = "stocks.csv";
-        String symbol = "AAPL"; // stock name
-        int batchSize = 64; // mini-batch size
-        double splitRatio = 0.9; // 90% for training, 10% for testing
-        int epochs = 100; // training epochs
+		        String file = "stocks.csv";
+		        String symbol = "AAPL"; // stock name
+		        int batchSize = 64; // mini-batch size
+		        double splitRatio = 0.9; // 90% for training, 10% for testing
+		        int epochs = 100; // training epochs
 
        
         System.out.println("Create dataSet iterator...");
