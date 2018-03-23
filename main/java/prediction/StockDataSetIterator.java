@@ -9,8 +9,11 @@ import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 
 /**
@@ -263,6 +266,42 @@ public class StockDataSetIterator implements DataSetIterator {
                 	
                 stockDataList.add(new Point(arr[0], arr[1], nums[0], nums[1], nums[2], nums[3], nums[4]));
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return stockDataList;
+    }
+	
+	public List<Point> readStockDataFromFile1 (String filename, String symbol) {
+        List<Point> stockDataList = new ArrayList<Point>();
+        
+        try {
+            for (int i = 0; i < maxArray.length; i++) { // initialize max and min arrays
+                maxArray[i] = Double.MIN_VALUE;
+                minArray[i] = Double.MAX_VALUE;
+            }
+           // List<String[]> list = new CSVReader(new FileReader(filename)).readAll(); // load all elements in a list
+            //System.out.println("size of the element read "+list.size());
+            String encoding = "UTF-8";
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filename), encoding));
+            String line;
+            long c = 0;
+            br.readLine();
+            while ((line = br.readLine()) != null) {
+               // if (!arr[1].equals(symbol)) continue;
+            	String arr[] = line.split("\\,");
+                double[] nums = new double[VECTOR_SIZE];
+                /*for (int i = 0; i < arr.length - 2; i++) {
+                    nums[i] = Double.parseDouble(arr[i + 2]);
+                    if (nums[i] > maxArray[i]) maxArray[i] = nums[i];
+                    if (nums[i] < minArray[i]) minArray[i] = nums[i];
+                   
+                }	*/
+                	c++;
+                	System.out.println(c+"---"+new Point(arr[1], arr[0], Double.parseDouble(arr[2]),  Double.parseDouble(arr[5]),  Double.parseDouble(arr[4]),  Double.parseDouble(arr[3]),  Double.parseDouble(arr[6])));
+                //stockDataList.add(new Point(arr[1], arr[0], nums[2], nums[5], nums[4], nums[3], nums[6]));
+            }
+            System.out.println(c);
         } catch (IOException e) {
             e.printStackTrace();
         }
